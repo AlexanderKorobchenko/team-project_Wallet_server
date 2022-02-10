@@ -1,0 +1,50 @@
+{
+  "name": "team-project_wallet_server",
+  "version": "1.0.0",
+  "description": "application for planning and managing budget ",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node ./bin/server.js",
+    "start:dev": "cross-env NODE_ENV=development nodemon ./bin/server.js",
+    "lint": "eslint **/*.js",
+    "lint:fix": "eslint --fix **/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexanderKorobchenko/team-project_Wallet_server.git"
+  },
+  "keywords": [
+    "Node.js",
+    "Express",
+    "MongoDB",
+    "Mongoose"
+  ],
+  "author": "students of GoIt group 5",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlexanderKorobchenko/team-project_Wallet_server/issues"
+  },
+  "homepage": "https://github.com/AlexanderKorobchenko/team-project_Wallet_server#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "2.8.5",
+    "cross-env": "^7.0.3",
+    "dotenv": "^10.0.0",
+    "express": "4.17.1",
+    "http-errors": "^1.8.1",
+    "joi": "^17.5.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.1.3",
+    "morgan": "1.10.0",
+    "nanoid": "^3.2.0",
+    "swagger-ui-express": "^4.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.19.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "nodemon": "^2.0.7"
+  }
+}
