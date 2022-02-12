@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const { User } = require('../model');
+const { User } = require("../models");
 
 const { SECRET_KEY } = process.env;
 
@@ -9,14 +9,14 @@ const authentication = async (req, res, next) => {
     const { authorization } = req.headers;
     if (!authorization) {
       return res.status(401).json({
-        message: 'Not authorized',
+        message: "Not authorized",
       });
     }
 
-    const [bearer, token] = authorization.split(' ');
-    if (bearer !== 'Bearer') {
+    const [bearer, token] = authorization.split(" ");
+    if (bearer !== "Bearer") {
       return res.status(401).json({
-        message: 'Not authorized',
+        message: "Not authorized",
       });
     }
 
@@ -24,7 +24,7 @@ const authentication = async (req, res, next) => {
     const user = await User.findOne({ token });
     if (!user) {
       return res.status(401).json({
-        message: 'Not authorized',
+        message: "Not authorized",
       });
     }
     req.user = user;
@@ -32,7 +32,7 @@ const authentication = async (req, res, next) => {
   } catch (error) {
     if (!error.status) {
       error.status = 401;
-      error.message = 'Not authorized';
+      error.message = "Not authorized";
     }
     next(error);
   }
