@@ -28,6 +28,7 @@ const transactionSchema = Schema(
     },
     date: {
       type: Number,
+      required: [true, 'date is required']
     },
     month: {
       type: String,
@@ -46,7 +47,7 @@ const joiSchema = Joi.object({
   category: Joi.string().required(),
   comment: Joi.string(),
   amount: Joi.number().required(),
-  currentBalance: Joi.number().required(),
+  currentBalance: Joi.number(),
   isIncome: Joi.boolean().required(),
   date: Joi.number(),
   month: Joi.string(),
