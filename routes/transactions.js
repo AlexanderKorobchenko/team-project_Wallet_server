@@ -4,14 +4,14 @@ const { NotFound, BadRequest } = require("http-errors");
 const  authenticate  = require('../middlewares/authentication');
 
 const { Transaction } = require('../models');
-const { joiSchema, patchFavoriteJoiSchema } = require('../models/transaction');
+const { joiSchema } = require('../models/transaction');
 
 router.get("/", authenticate, async (req, res, next) => {
   try {
     const { page = 1, limit = 10} = req.query;
     const { _id } = req.user;
     const skip = (page - 1) * limit;
-    let contacts = await Transaction.find(
+    let transactions = await Transaction.find(
       { owner: _id},
       "-createdAt -updatedAt",
       {
@@ -19,8 +19,9 @@ router.get("/", authenticate, async (req, res, next) => {
         limit: Number(limit),
       }
     );
-    res.json(contacts);
-  } catch (error) {
+    res.json(transactions);
+  }
+  catch (error) {
     next(error);
   }
 });
@@ -46,8 +47,13 @@ router.post("/", authenticate, async (req, res, next) => {
       throw new BadRequest(error.message);
     }
     const { _id } = req.user;
+    const date = req.body.date;
+    const formattedDate = new Date(date);
+    const month = (Number(formattedDate.getMonth())+1).toString();
+    const year = formattedDate.getFullYear();
+    console.log('timing', date, month, year);
 
-    const newTransaction = await Transaction.create({ ...req.body, owner: _id });
+    const newTransaction = await Transaction.create({ ...req.body, owner: _id, month, year });
     res.status(201).json(newTransaction);
   } catch (error) {
     if (error.message.includes("validation failed")) {
