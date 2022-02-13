@@ -22,11 +22,22 @@ router.get("/", authenticate, async (req, res, next) => {
 
 router.get('/period', authenticate, async (req, res, next) => {
   try {
-    const { _id,year,month } = req;
-    const transactions = await Transaction.find({ owner: _id, year, month }, '-createdAt -updatedAt');
+    const { _id } = req.user;
+    const { year, month } = req.query;
+    let transactions = [];
+    if (!year) {
+      throw new Error("year is obligatory parameter");
+    }
+    if (!month) {
+    transactions = await Transaction.find({ owner: _id, year }, '-createdAt -updatedAt');
+    } else {
+    transactions = await Transaction.find({ owner: _id, year, month }, '-createdAt -updatedAt');
+    }
     res.json(transactions);
   } catch (error) {
-    next(error);
+    if (error.message.includes('year is obligatory parameter')) {
+      error.status = 400;
+    } next(error);
   }
 });
 
