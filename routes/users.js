@@ -1,82 +1,90 @@
-const express = require("express");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 // const nanoid = require("nanoid");
 
 const { SECRET_KEY } = process.env;
 
-// const { joiRegisterSchema, joiLoginSchema } = require("../../model/user");
-const { User } = require("../models/");
-const authentication = require("../middlewares/authentication");
+const { joiRegisterSchema, joiLoginSchema } = require('../models/user');
+const { User } = require('../models/');
+const authentication = require('../middlewares/authentication');
 
 const router = express.Router();
 
-router.post("/register", async (req, res, next) => {
+router.post('/register', async (req, res, next) => {
   try {
-    // const { error } = joiRegisterSchema.validate(req.body);
-    // if (error) {
-    //   return res.status(400).json({
-    //     message: error.message,
-    //   });
-    // }
+    const { error } = joiRegisterSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
 
     const { name, email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (user) {
       return res.status(409).json({
-        message: "Email in use",
+        message: 'Email in use',
       });
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
-    let token;
-
 
     const newUser = await User.create({
       name,
       email,
       password: hashPassword,
       balance: 0,
-      token,
+      token: null,
     });
+
     const payload = await { id: newUser._id };
-    token = await jwt.sign(payload, SECRET_KEY, { expiresIn: "7d" });
+    const token = await jwt.sign(payload, SECRET_KEY, { expiresIn: '7d' });
+
     await newUser.update({ token });
-    res.status(201).json(newUser);
+
+    res.status(201).json({
+      token,
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        balance: newUser.balance,
+      },
+    });
   } catch (error) {
     next(error);
   }
 });
 
-router.post("/login", async (req, res, next) => {
+router.post('/login', async (req, res, next) => {
   try {
-    // const { error } = joiLoginSchema.validate(req.body);
-    // if (error) {
-    //   return res.status(400).json({
-    //     message: error.message,
-    //   });
-    // }
+    const { error } = joiLoginSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
 
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
-        message: "Email or password is wrong",
+        message: 'Email or password is wrong',
       });
     }
 
     const passwordCompare = await bcrypt.compare(password, user.password);
     if (!passwordCompare) {
       return res.status(401).json({
-        message: "Email or password is wrong",
+        message: 'Email or password is wrong',
       });
     }
 
     const payload = { id: user._id };
-    const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "7d" });
+    const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '7d' });
 
     await User.findByIdAndUpdate(user._id, { token });
     res.json({
@@ -92,7 +100,7 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.get("/logout", authentication, async (req, res, next) => {
+router.get('/logout', authentication, async (req, res, next) => {
   try {
     const { _id } = req.user;
     await User.findByIdAndUpdate(_id, { token: null });
@@ -102,7 +110,7 @@ router.get("/logout", authentication, async (req, res, next) => {
   }
 });
 
-router.get("/current", authentication, async (req, res) => {
+router.get('/current', authentication, async (req, res) => {
   const { name, email, balance } = req.user;
   res.json({ user: { name, email, balance } });
 });
