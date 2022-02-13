@@ -31,29 +31,20 @@ router.post("/register", async (req, res, next) => {
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
+    let token;
+
 
     const newUser = await User.create({
       name,
       email,
       password: hashPassword,
       balance: 0,
-    });
-
-    const currentUser = await User.findOne({ email });
-
-    const payload = { id: currentUser._id };
-    const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "7d" });
-
-    await User.findByIdAndUpdate(currentUser._id, { token });
-
-    res.status(201).json({
       token,
-      user: {
-        name: newUser.name,
-        email: newUser.email,
-        balance: newUser.balance,
-      },
     });
+    const payload = await { id: newUser._id };
+    token = await jwt.sign(payload, SECRET_KEY, { expiresIn: "7d" });
+    await newUser.update({ token });
+    res.status(201).json(newUser);
   } catch (error) {
     next(error);
   }

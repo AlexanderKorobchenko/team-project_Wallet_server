@@ -21,12 +21,12 @@ const transactionSchema = Schema({
     type: Number,
     required: [true, "No fuckin' balance, calculate it!!"],
   },
-  type: {
+  isIncome: {
     type: Boolean,
     required: [true, "Indicate whether this is income or expenditure"],
   },
   date: {
-    type: String,
+    type: Number,
   },
   month: {
     type: String,
@@ -43,9 +43,9 @@ const Transaction = model("transaction", transactionSchema);
         category: Joi.string().required(),
         comment: Joi.string(),
         amount: Joi.number().required(),
-        currentBalance: Joi.number().required(),
-        type: Joi.boolean().required,
-        date: Joi.string(),
+      currentBalance: Joi.number().required(),
+      isIncome: Joi.boolean().required(),
+        date: Joi.number(),
         month: Joi.string(),
         year: Joi.string() 
 });
