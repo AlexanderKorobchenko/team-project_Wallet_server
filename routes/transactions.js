@@ -19,6 +19,30 @@ router.get("/", authenticate, async (req, res, next) => {
     next(error);
   }
 });
+
+router.get('/period', authenticate, async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const { year, month } = req.query;
+    let transactions = [];
+    if (!year) {
+      throw new Error("year is obligatory parameter");
+    }
+    if (!month) {
+    transactions = await Transaction.find({ owner: _id, year }, '-createdAt -updatedAt');
+    } else {
+    transactions = await Transaction.find({ owner: _id, year, month }, '-createdAt -updatedAt');
+    }
+    res.json(transactions);
+  } catch (error) {
+    if (error.message.includes('year is obligatory parameter')) {
+      error.status = 400;
+    } next(error);
+  }
+});
+
+
+
 router.post("/", authenticate, async (req, res, next) => {
   try {
     const { error } = joiSchema.validate(req.body);
@@ -55,19 +79,6 @@ router.post("/", authenticate, async (req, res, next) => {
   }
 });
 
-
-// router.delete("/:id", authenticate, async (req, res, next) => {
-//   try {
-//     const { id } = req.params;
-//     const deleteTransaction = await Transaction.findByIdAndRemove(id);
-//     if (!deleteTransaction) {
-//       throw new NotFound();
-//     }
-//     res.json({ message: "Transaction deleted" });
-//   } catch (error) {
-//     next(error);
-//   }
-// });
 
 
 module.exports = router;
