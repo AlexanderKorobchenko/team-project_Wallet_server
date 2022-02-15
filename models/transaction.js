@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const Joi = require('joi');
+Joi.objectId = require('joi-objectid')(Joi);
 
 const transactionSchema = Schema(
   {
@@ -43,7 +44,7 @@ const transactionSchema = Schema(
 const Transaction = model('transaction', transactionSchema);
 
 const joiSchema = Joi.object({
-  // owner: Joi.objectId(),
+  owner: Joi.objectId(),
   category: Joi.string().required(),
   comment: Joi.string(),
   amount: Joi.number().required(),

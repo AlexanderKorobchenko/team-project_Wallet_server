@@ -3,7 +3,7 @@ const router = express.Router();
 const { NotFound, BadRequest } = require('http-errors');
 const authenticate = require('../middlewares/authentication');
 
-const { Transaction, User } = require('../models');
+const { Transaction, User, Category } = require('../models');
 const { joiSchema } = require('../models/transaction');
 
 router.get('/', authenticate, async (req, res, next) => {
@@ -19,21 +19,40 @@ router.get('/', authenticate, async (req, res, next) => {
 router.get('/period', authenticate, async (req, res, next) => {
   try {
     const { _id } = req.user;
-    const { year, month } = req.query;
-    let transactions = [];
+    let { year, month } = req.query;
+    let categories = {};
+    let result = {};
     if (!year) {
-      throw new Error('year is obligatory parameter');
+      year = new Date().getFullYear();
     }
     if (!month) {
-      transactions = await Transaction.find({ owner: _id, year }, '-createdAt -updatedAt');
-    } else {
-      transactions = await Transaction.find({ owner: _id, year, month }, '-createdAt -updatedAt');
+      month = (Number(new Date().getMonth()) + 1).toString();
     }
-    res.json(transactions);
+    const transactions = await Transaction.find({ owner: _id, year, month }, '-createdAt -updatedAt');
+
+    const totalIncome = transactions.filter(({ isIncome }) => isIncome === true)
+      .reduce((acc, element) => { return acc += element.amount }, 0);
+    
+    const expenditures = transactions.filter(({ isIncome }) => isIncome === false)
+    const totalExpenditures = expenditures.reduce((acc, element) => { return acc += element.amount }, 0);
+    
+    const { costs } = await Category.findOne({ language: 'en' }, '-_id -language');
+    const categoriesKeys = Object.keys(costs);
+    for (key of categoriesKeys) {
+    categories = {
+      ...categories,
+      [key]: expenditures
+        .filter(({ category }) => category === key)
+        .reduce((acc, element) => {
+          return (acc += element.amount);
+        }, 0),
+    };
+    };
+    result = {
+      totalExpenditures, totalIncome, categories
+    };
+    res.json(result);
   } catch (error) {
-    if (error.message.includes('year is obligatory parameter')) {
-      error.status = 400;
-    }
     next(error);
   }
 });
@@ -45,7 +64,7 @@ router.post('/', authenticate, async (req, res, next) => {
       throw new BadRequest(error.message);
     }
     const { _id } = req.user;
-    const { date, amount, isIncome } = req.body;
+    const { date, amount, isIncome, comment, category } = req.body;
 
     const formattedDate = new Date(date);
     const month = (Number(formattedDate.getMonth()) + 1).toString();
@@ -66,6 +85,8 @@ router.post('/', authenticate, async (req, res, next) => {
       month,
       year,
       currentBalance,
+      comment,
+      category
     });
     res.status(201).json(newTransaction);
   } catch (error) {
