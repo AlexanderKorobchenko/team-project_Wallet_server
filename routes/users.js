@@ -1,7 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-// const nanoid = require("nanoid");
 
 const { SECRET_KEY } = process.env;
 

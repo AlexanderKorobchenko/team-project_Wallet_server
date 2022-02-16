@@ -1,6 +1,5 @@
 const { Schema, model } = require('mongoose');
 const Joi = require('joi');
-Joi.objectId = require('joi-objectid')(Joi);
 
 const transactionSchema = Schema(
   {
@@ -29,7 +28,7 @@ const transactionSchema = Schema(
     },
     date: {
       type: Number,
-      required: [true, 'date is required']
+      required: [true, 'date is required'],
     },
     month: {
       type: String,
@@ -44,7 +43,6 @@ const transactionSchema = Schema(
 const Transaction = model('transaction', transactionSchema);
 
 const joiSchema = Joi.object({
-  owner: Joi.objectId(),
   category: Joi.string().required(),
   comment: Joi.string(),
   amount: Joi.number().required(),

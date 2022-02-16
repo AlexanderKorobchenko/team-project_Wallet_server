@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { NotFound, BadRequest } = require('http-errors');
-const authenticate = require('../middlewares/authentication');
+const { BadRequest } = require('http-errors');
 
 const { Transaction, User, Category } = require('../models');
 const { joiSchema } = require('../models/transaction');
+const authenticate = require('../middlewares/authentication');
 
 router.get('/', authenticate, async (req, res, next) => {
   try {
     const { _id } = req.user;
-    const transactions = await Transaction.find({ owner: _id }, '-createdAt -updatedAt');
+    const transactions = await Transaction.find({ owner: _id }, '-createdAt -updatedAt -owner');
     res.json(transactions);
   } catch (error) {
     next(error);
@@ -19,38 +19,51 @@ router.get('/', authenticate, async (req, res, next) => {
 router.get('/period', authenticate, async (req, res, next) => {
   try {
     const { _id } = req.user;
-    let { year, month } = req.query;
-    let categories = {};
-    let result = {};
+    const { year, month } = req.query;
+    let categories = null;
+
     if (!year) {
       year = new Date().getFullYear();
     }
     if (!month) {
       month = (Number(new Date().getMonth()) + 1).toString();
     }
-    const transactions = await Transaction.find({ owner: _id, year, month }, '-createdAt -updatedAt');
 
-    const totalIncome = transactions.filter(({ isIncome }) => isIncome === true)
-      .reduce((acc, element) => { return acc += element.amount }, 0);
-    
-    const expenditures = transactions.filter(({ isIncome }) => isIncome === false)
-    const totalExpenditures = expenditures.reduce((acc, element) => { return acc += element.amount }, 0);
-    
+    const transactions = await Transaction.find(
+      { owner: _id, year, month },
+      '-createdAt -updatedAt',
+    );
+
+    const totalIncome = transactions
+      .filter(({ isIncome }) => isIncome === true)
+      .reduce((acc, element) => {
+        return (acc += element.amount);
+      }, 0);
+
+    const expenditures = transactions.filter(({ isIncome }) => isIncome === false);
+    const totalExpenditures = expenditures.reduce((acc, element) => {
+      return (acc += element.amount);
+    }, 0);
+
     const { costs } = await Category.findOne({ language: 'en' }, '-_id -language');
     const categoriesKeys = Object.keys(costs);
     for (key of categoriesKeys) {
-    categories = {
-      ...categories,
-      [key]: expenditures
-        .filter(({ category }) => category === key)
-        .reduce((acc, element) => {
-          return (acc += element.amount);
-        }, 0),
+      categories = {
+        ...categories,
+        [key]: expenditures
+          .filter(({ category }) => category === key)
+          .reduce((acc, element) => {
+            return (acc += element.amount);
+          }, 0),
+      };
+    }
+
+    const result = {
+      totalExpenditures,
+      totalIncome,
+      categories,
     };
-    };
-    result = {
-      totalExpenditures, totalIncome, categories
-    };
+    
     res.json(result);
   } catch (error) {
     next(error);
@@ -79,6 +92,7 @@ router.post('/', authenticate, async (req, res, next) => {
     }
 
     await User.findByIdAndUpdate(_id, { balance: currentBalance }, { new: true });
+
     const newTransaction = await Transaction.create({
       ...req.body,
       owner: _id,
@@ -86,14 +100,13 @@ router.post('/', authenticate, async (req, res, next) => {
       year,
       currentBalance,
       comment,
-      category
+      category,
     });
     res.status(201).json(newTransaction);
   } catch (error) {
     if (error.message.includes('validation failed')) {
       error.status = 400;
     }
-
     next(error);
   }
 });
