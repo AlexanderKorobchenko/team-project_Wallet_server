@@ -1,0 +1,597 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "version": "1.0.0",
+    "title": "Swagger test",
+    "description": "Showing off swagger-ui-express",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "servers": [{ "url": "http://localhost:4000" }, {"url": "https://afternoon-spire-55607.herkuapp.com" }],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Authorization and User information endpoints"
+    },
+        {
+      "name": "Categories",
+      "description": "Categories listing endpoint"
+    },
+        {
+      "name": "Transactions",
+      "description": "Transactions adding and reading endpoints"
+    }
+  ],
+  "paths": {
+    "/users/register": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "User registration",
+        "parameters": [],
+        "requestBody": {
+          "description": "Registration's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body)",
+            "content": {}
+          },
+          "409": {
+            "description": "Email in use",
+            "content": {}
+          }
+        }
+      }
+    }, 
+        "/users/login": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "User authentication",
+        "parameters": [],
+        "requestBody": {
+          "description": "Authentication object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Email or password is wrong",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/users/logout": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "User logging out",
+        "parameters": [],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+        },
+        "responses": {
+          "204": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+        "/users/current": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "User information",
+        "parameters": [],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDataResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+        "/categories": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "List of categories",
+        "parameters": [],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoriesResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Language 'XX' not found. Try other languages.",
+            "content": {}
+          }
+        }
+      }
+    },
+        "/transactions": {
+      "post": {
+        "tags": ["Transactions"],
+        "summary": "Transaction record",
+        "parameters": [],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+          "description": "Transaction object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransactionRecordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation (Created)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionRecordResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body)",
+            "content": {}
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {}
+          }
+        }
+      },
+      "get": {
+        "tags": ["Transactions"],
+        "summary": "TransactionsFetch",
+        "parameters": [],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {},
+        "responses": {
+          "200": {
+            "description": "Successful operation)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionsFetchResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {}
+          }
+        }
+      }
+
+    },
+    "/transactions/period": {
+      "get": {
+        "tags": ["Transactions"],
+        "summary": "Transactions for the specified period (year and month)",
+        "parameters": [{
+          "in": "query",
+          "name":"year",
+          "required":false,
+          "type":"string",
+          "description": "choose year"
+        },
+        {
+          "in": "query",
+          "name":"month",
+          "required":false,
+          "type":"string",
+          "description": "choose month"
+        }],
+        "security": [{ "Bearer": [] }],
+        "requestBody": {},
+        "responses": {
+          "200": {
+            "description": "Successful operation)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionsForPeriodResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authorized",
+            "content": {}
+          }
+        }
+      }
+    }
+
+  },
+  "components": {
+    "schemas": {
+      "RegistrationRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password",
+            "example": "qwerty123"
+          }
+        }
+      },
+      "RegistrationResponse": {
+          "type": "object",
+          "properties": {
+            "token": {
+            "type": "string",
+            "description": "User's token"
+            },
+            "name": {
+              "type": "string",
+              "description": "User's name"
+            },
+            "email": {
+              "type": "string",
+              "description": "User's email",
+              "format": "email"
+            },
+            "balane": {
+              "type": "float",
+              "description": "User's balance"
+            }
+          },
+        "example":           {
+          "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMGU4MTM3MDljYTRhOTdhZjIyODYyZCIsImlhdCI6MTY0NTExNzc1MSwiZXhwIjoxNjQ1NzIyNTUxfQ.WStWL6hqxW610fJJO_FaadYobnHK_SoFqrJkkrJV6Hg",
+          "user": { "name": "Joxi", "email": "test@mail.com", "balance": 0 }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User's email",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password",
+            "example": "qwerty123"
+          }
+        }
+      },
+            "LoginResponse": {
+          "type": "object",
+          "properties": {
+            "token": {
+            "type": "string",
+            "description": "User's token"
+            },
+            "name": {
+              "type": "string",
+              "description": "User's name"
+            },
+            "email": {
+              "type": "string",
+              "description": "User's email",
+              "format": "email"
+            },
+            "balane": {
+              "type": "float",
+              "description": "User's balance"
+            }
+          },
+        "example": 
+          {
+          "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMGU4MTM3MDljYTRhOTdhZjIyODYyZCIsImlhdCI6MTY0NTExNzc1MSwiZXhwIjoxNjQ1NzIyNTUxfQ.WStWL6hqxW610fJJO_FaadYobnHK_SoFqrJkkrJV6Hg",
+          "user": { "name": "Joxi", "email": "test@mail.com", "balance": 0 }
+        }
+      },
+        "UserDataResponse": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "User's name"
+            },
+            "email": {
+              "type": "string",
+              "description": "User's email",
+              "format": "email"
+            },
+            "balane": {
+              "type": "float",
+              "description": "User's balance"
+            }
+          },
+        "example": 
+          {
+          "user": { "name": "Joxi", "email": "test@mail.com", "balance": 0 }
+        }
+      },
+        "CategoriesResponse": {
+        "type": "object",
+        "item1": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string",
+              "description": "Category name"
+            }
+          }
+        },
+        "items": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string",
+              "description": "Category name"
+            }
+          }
+        },
+        "example": {
+          "costs": { "1": "clothes", "2": "food", "3": "transport" },
+          "income": { "1": "regular", "2": "irregular" }
+      }
+      },
+            "TransactionRecordRequest": {
+        "type": "object",
+        "required": ["category", "amount", "currentBalance", "isIncome", "date" ],
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "category of transaction"
+          },
+          "comment": {
+            "type": "string",
+            "description": "User's comment about the transaction"
+          },
+          "amount": {
+            "type": "number",
+            "description": "amount of the transaction"
+          },
+          "isIncome": {
+            "type": "boolean",
+            "description": "true - income, false - expenditures"
+          },
+          "date": {
+            "type": "integer",
+            "description": "date expressed in miliseconds"
+        }
+      }
+    },
+      "TransactionRecordResponse": {
+        "type": "object",
+          "properties": {
+          "_id": {
+            "type": "string",
+            "description": "transaction's id"
+          },
+          "owner": {
+            "type": "Schema.Types.ObjectId",
+            "description": "Allegience to user"
+          },
+          "category": {
+            "type": "string",
+            "description": "category of transaction"
+          },
+          "comment": {
+            "type": "string",
+            "description": "User's comment about the transaction"
+          },
+          "amount": {
+            "type": "number",
+            "description": "amount of the transaction"
+          },
+          "currentBalance": {
+            "type": "number",
+            "description": "calculated User's balance for the moment of the transaction adding"
+          },
+          "isIncome": {
+            "type": "Boolean",
+            "description": "true - income, false - expenditures"
+          },
+          "date": {
+            "type": "integer",
+            "description": "date expressed in miliseconds"
+        },
+          "month": {
+            "type": "string",
+            "description": "month represented in a form of number (one digit)"
+        },
+          "year": {
+            "type": "string",
+            "description": "year represented in a form of number (four digits)"
+          }
+            },
+        "example": {"_id": "620ecfabfe91e6843e1bc699",
+           "category": "1",
+            "comment": "hat",
+            "amount": 400,
+            "currentBalance": 17500,
+            "isIncome": false,
+            "date": 1645136691665,
+            "month": "2",
+            "year": "2022"
+          }
+         },
+      "TransactionsFetchResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+          "_id": {
+            "type": "string",
+            "description": "transaction's id"
+          },
+          "category": {
+            "type": "string",
+            "description": "category of transaction"
+          },
+          "comment": {
+            "type": "string",
+            "description": "User's comment about the transaction"
+          },
+          "amount": {
+            "type": "number",
+            "description": "amount of the transaction"
+          },
+          "currentBalance": {
+            "type": "number",
+            "description": "calculated User's balance for the moment of the transaction adding"
+          },
+          "isIncome": {
+            "type": "Boolean",
+            "description": "true - income, false - expenditures"
+          },
+          "date": {
+            "type": "integer",
+            "description": "date expressed in miliseconds"
+        },
+          "month": {
+            "type": "string",
+            "description": "month represented in a form of number (one digit)"
+        },
+          "year": {
+            "type": "string",
+            "description": "year represented in a form of number (four digits)"
+          }
+            }
+              },
+        "example": [{"_id": "620ecfabfe91e6843e1bc699",
+           "category": "1",
+            "comment": "hat",
+            "amount": 400,
+            "currentBalance": 17500,
+            "isIncome": false,
+            "date": 1645136691665,
+            "month": "2",
+            "year": "2022"
+          },
+          {"_id": "620ecfabfe91e6843e1bc700",
+           "category": "1",
+            "comment": "shoes",
+            "amount": 600,
+            "currentBalance": 16900,
+            "isIncome": false,
+            "date": 1645136691665,
+            "month": "2",
+            "year": "2022"
+          }
+        ]
+         },
+      "TransactionsForPeriodResponse": {
+        "type": "object",
+          "properties": {
+          "totalExpenditures": {
+            "type": "number",
+            "description": "total amount spent"
+          },
+          "totalIncome": {
+            "type": "number",
+            "description": "total amount earned"
+          },
+          "categories": {
+            "type": "object",
+            "description": "list of categories with amounts spent per each",
+              "properties":{
+                "type":"number",
+                "description": "spent in each category"
+            }
+           }
+         },
+    "example": {
+    "totalExpenditures": 1200,
+    "totalIncome": 0,
+    "categories": {
+        "1": 1200,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0,
+        "9": 0,
+        "10": 0,
+        "11": 0
+    }
+      }
+        }
+          },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
+
+
