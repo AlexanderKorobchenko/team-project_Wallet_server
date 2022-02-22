@@ -44,7 +44,7 @@ const Transaction = model('transaction', transactionSchema);
 
 const joiSchema = Joi.object({
   category: Joi.string().required(),
-  comment: Joi.string(),
+  comment: Joi.string().allow(null, ''),
   amount: Joi.number().required(),
   currentBalance: Joi.number(),
   isIncome: Joi.boolean().required(),
